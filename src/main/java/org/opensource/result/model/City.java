@@ -1,18 +1,9 @@
 package org.opensource.result.model;
 
-public class Address {
+public class City {
 
 	private Long id;
-	private String street;
-	private City city;
-
-	public City getCity() {
-		return city;
-	}
-
-	public void setCity(City city) {
-		this.city = city;
-	}
+	private String name;
 
 	public Long getId() {
 		return id;
@@ -22,12 +13,12 @@ public class Address {
 		this.id = id;
 	}
 
-	public String getStreet() {
-		return street;
+	public String getName() {
+		return name;
 	}
 
-	public void setStreet(String street) {
-		this.street = street;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -35,7 +26,7 @@ public class Address {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((street == null) ? 0 : street.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -47,18 +38,17 @@ public class Address {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Address other = (Address) obj;
+		City other = (City) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (street == null) {
-			if (other.street != null)
+		if (name == null) {
+			if (other.name != null)
 				return false;
-		} else if (!street.equals(other.street))
+		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}
-
 }

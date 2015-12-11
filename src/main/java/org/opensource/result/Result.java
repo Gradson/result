@@ -21,15 +21,8 @@ public class Result {
 	
 	public <T> T getResult(Object objectSource, Class<T> clazz) {
 		try {
-			
-			T objectTarget = clazz.newInstance();
-			Field[] declaredFields = objectTarget.getClass().getDeclaredFields();
-			for (Field field : declaredFields) {
-				field.setAccessible(true);
-				copyProperty(objectSource, objectTarget, field);
-			}
-			
-			return objectTarget;
+			String path = "";
+			return filter(objectSource, clazz, path);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -37,16 +30,39 @@ public class Result {
 		return null;
 	}
 
-	private <T> void copyProperty(Object objectSource, T objectTarget, Field field)	throws IllegalAccessException, InvocationTargetException {
+	private <T> T filter(Object objectSource, Class<T> clazz, String path) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		T objectTarget = clazz.newInstance();
+		Field[] declaredFields = objectTarget.getClass().getDeclaredFields();
+		for (Field field : declaredFields) {
+			field.setAccessible(true);
+			copyProperty(objectSource, objectTarget, field, path);
+		}
+		
+		return objectTarget;
+	}
+
+	private <T> void copyProperty(Object objectSource, T objectTarget, Field field, String path) throws IllegalAccessException, InvocationTargetException, InstantiationException, IllegalArgumentException {
 		if(isValidField(field)) {
 			BeanUtils.copyProperty(objectTarget, field.getName(), field.get(objectSource));
+		
+		} else if (isIncludedProperty(path, field)) {
+			Object objectIncluded = copyClass(objectSource, field, path);
+			BeanUtils.copyProperty(objectTarget, field.getName(), objectIncluded);
 		}
+	}
+
+	private Object copyClass(Object objectSource, Field field, String path)	throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		String parentProperty = path + field.getName();
+		return filter(field.get(objectSource), field.getType(), parentProperty);
 	}
 
 
 	private boolean isValidField(Field field) {
-		return (!excludeProperties.contains(field.getName()) &&	isJavaNative(field.getType())) || 
-				includeProperties.contains(field.getName());
+		return (!excludeProperties.contains(field.getName()) &&	isJavaNative(field.getType()));
+	}
+
+	private boolean isIncludedProperty(String path, Field field) {
+		return includeProperties.contains(field.getName()) || includeProperties.contains(path+"."+field.getName());
 	}
 	
 	private boolean isJavaNative(Class<?> propertyClass) {

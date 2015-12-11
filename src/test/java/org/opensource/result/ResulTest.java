@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensource.result.model.Address;
+import org.opensource.result.model.City;
 import org.opensource.result.model.User;
 
 public class ResulTest {
@@ -61,9 +62,45 @@ public class ResulTest {
 		assertEquals(1, userExpect.getAge(), 0.001);
 		assertNotNull(userExpect.getAddress().getId());
 	}
+	
+	@Test
+	public void shouldReturnOnlySimplePropertiesOfAddressIncluded() {
+		User user = createNewUser();
+		user.setAddress(createAddress());
+		user.getAddress().setCity(createCity());
+		
+		User userExpect = result.includePropety("address").getResult(user, User.class);
+		
+		assertEquals("User Test", userExpect.getName());
+		assertEquals(1, userExpect.getAge(), 0.001);
+		assertNotNull(userExpect.getAddress().getId());
+		assertNull(userExpect.getAddress().getCity());
+	}
+	
+	@Test
+	public void shouldReturnAddressAndCityIncluded() {
+		User user = createNewUser();
+		user.setAddress(createAddress());
+		user.getAddress().setCity(createCity());
+		
+		User userExpect = result.includePropety("address")
+								.includePropety("address.city")
+								.getResult(user, User.class);
+		
+		assertEquals("User Test", userExpect.getName());
+		assertEquals(1, userExpect.getAge(), 0.001);
+		assertNotNull(userExpect.getAddress().getId());
+		assertNotNull(userExpect.getAddress().getCity().getId());
+	}
 
 
 	
+	private City createCity() {
+		City city = new City();
+		city.setId(1L);
+		city.setName("city test");
+		return city;
+	}
 	
 	private Address createAddress() {
 		Address address = new Address();
