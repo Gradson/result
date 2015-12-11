@@ -42,13 +42,18 @@ public class Result {
 	}
 
 	private <T> void copyProperty(Object objectSource, T objectTarget, Field field, String path) throws IllegalAccessException, InvocationTargetException, InstantiationException, IllegalArgumentException {
+		Object objectIncluded = getPropertyValue(objectSource, field, path);
+		BeanUtils.copyProperty(objectTarget, field.getName(), objectIncluded);
+	}
+
+	private Object getPropertyValue(Object objectSource, Field field, String path)	throws IllegalAccessException, InstantiationException, InvocationTargetException {
+		Object propertyValue = null;
 		if(isValidField(field)) {
-			BeanUtils.copyProperty(objectTarget, field.getName(), field.get(objectSource));
-		
+			propertyValue = field.get(objectSource);
 		} else if (isIncludedProperty(path, field)) {
-			Object objectIncluded = copyClass(objectSource, field, path);
-			BeanUtils.copyProperty(objectTarget, field.getName(), objectIncluded);
+			propertyValue = copyClass(objectSource, field, path);
 		}
+		return propertyValue;
 	}
 
 	private Object copyClass(Object objectSource, Field field, String path)	throws InstantiationException, IllegalAccessException, InvocationTargetException {
